@@ -134,4 +134,14 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 	cd ..
 	
 
+==================
+### Parsing MPD using libdash
+This section details on how to parse the MPD using libdash, assuming we are in the main directory (DASH-SVC-Toolchain) again.
+
+
+	cd parseMPD
+	make
+	LD_LIBRARY_PATH=../../libdash/libdash/build/bin/ ./parseMPD
+
+The output will contain a list of files.
 
