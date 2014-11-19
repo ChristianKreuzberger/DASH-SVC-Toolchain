@@ -96,6 +96,7 @@ This section describes the scripts for downloading and testing. Create a directo
 ### Decoding a DASH/SVC Segment
 
 Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
+
 	cd decode
 	# Download init segment
 	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/II/segs/720p/bluesky-II-720p.init.svc
