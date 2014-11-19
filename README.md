@@ -5,7 +5,9 @@ A Dynamic Adaptive Streaming over HTTP (DASH) toolchain for Scalable Video Codin
 This toolchain provides python scripts for converting videos of the H.264/SVC extension into several segments and several layers, allowing Dynamic Adaptive Streaming over HTTP.
 
 ### Current features and restrictions
-* TODO
+* Testing JSVM
+* Decoding a DASH/SVC segment
+
 
 ==================
 ### Download and Tests
@@ -89,4 +91,46 @@ This section describes the scripts for downloading and testing. Create a directo
 	
 	
 	echo TESTS DONE!!!
+
+==================
+### Decoding a DASH/SVC Segment
+
+Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
+	cd decode
+	# Download init segment
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/II/segs/720p/bluesky-II-720p.init.svc
+	# Download segment 0, Base Layer
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/II/segs/720p/bluesky-II-720p.seg0-L0.svc
+	# Download segment 0, EL 1
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/II/segs/720p/bluesky-II-720p.seg0-L1.svc
+	# Download segment 0, EL 2
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/II/segs/720p/bluesky-II-720p.seg0-L2.svc
+
+	# call svc_merge.py and create the yuv files for the segments
+	# svc_merge.py for base layer only:
+	python svc_merge.py bluesky-II-720p.seg0-BL.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc
+	../$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-BL.264 bluesky-II-720p.seg0-BL.yuv
+
+	# svc_merge.py for base layer + EL 1:
+	python svc_merge.py bluesky-II-720p.seg0-EL1.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc bluesky-II-720p.seg0-L1.svc
+	../$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL1.264 bluesky-II-720p.seg0-EL1.yuv
+
+
+	# svc_merge.py for base layer + EL 1 + EL 2:
+	python svc_merge.py bluesky-II-720p.seg0-EL2.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc bluesky-II-720p.seg0-L1.svc bluesky-II-720p.seg0-L2.svc
+	../$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL2.264 bluesky-II-720p.seg0-EL2.yuv
+
+	# use mplayer to playback the three yuv files
+	mplayer -demuxer rawvideo -rawvideo w=1280:h=720:format=i420 bluesky-II-720p.seg0-BL.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=1280:h=720:format=i420 bluesky-II-720p.seg0-EL1.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=1280:h=720:format=i420 bluesky-II-720p.seg0-EL2.yuv -loop 0
+	
+	# remove the files we created
+	rm *.yuv
+	rm *.svc
+	rm *.264
+	
+	cd ..
+	
+
 
