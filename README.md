@@ -10,11 +10,11 @@ This toolchain provides python scripts for converting videos of the H.264/SVC ex
 ==================
 ### Download and Tests
 
-This section describes the scripts for downloading and testing.
+This section describes the scripts for downloading and testing. Create a directory, e.g., SVCDemo, switch to this directory and follow the steps below:
 
-# Requires: python (2.7), cvs, git
-# libdash requires:
-# sudo apt-get install git-core build-essential cmake libxml2-dev libcurl4-openssl-dev
+	# Requires: python (2.7), cvs, git
+	# libdash requires:
+	sudo apt-get install git-core build-essential cmake libxml2-dev libcurl4-openssl-dev
 
 	# get this repository
 	git clone git://github.com/ChristianKreuzberger/DASH-SVC-Toolchain.git
@@ -68,14 +68,25 @@ This section describes the scripts for downloading and testing.
 	diff bluesky_test.txt tests/bluesky_II_360p.txt
 
 	if [ $? -ne 0 ] ; then 
-		echo TESTING JSVM FAILED!
+		echo TESTING JSVM (TEST 1) FAILED!
+		exit -2 
+	fi
+	
+	# try decoding it
+	$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-360p.264 bluesky-II-360p.yuv > bluesky_decode_test.txt
+	diff bluesky_decode_test.txt tests/decode_bluesky_II_360p.txt
+	
+	if [ $? -ne 0 ] ; then 
+		echo TESTING JSVM (TEST 2) FAILED!
 		exit -2 
 	fi
 
 	# remove the files that we just created
 	rm bluesky_test.txt
+	rm bluesky_decode_test.txt
 	rm bluesky-II-360p.264
-
-
-
+	rm bluesky-II-360p.yuv
+	
+	
+	echo TESTS DONE!!!
 
