@@ -37,6 +37,7 @@ github repository.
 * build-essentials and cmake
 * [JSVM](http://www.hhi.fraunhofer.de/de/kompetenzfelder/image-processing/research-groups/image-video-coding/svc-extension-of-h264avc/jsvm-reference-software.html) Reference Encoder
 * [libdash](https://github.com/bitmovin/libdash) library for parsing MPD files (included in this github project)
+
 - - -
 
 ## Download, Build and Test
@@ -44,13 +45,16 @@ github repository.
 This section describes the scripts for downloading and testing. Create a directory, e.g., SVCDemo, switch to this 
 directory and follow the steps below:
 
-Install required packages:
+Install required packages and download this git repository:
 
 	# Requires: python (2.7), cvs, git
 	# libdash requires:
-	sudo apt-get install git-core build-essential cmake libxml2-dev libcurl4-openssl-dev
+	sudo apt-get install cvs git-core build-essential cmake libxml2-dev libcurl4-openssl-dev
+    # if you want to play yuv files, you need mplayer or any other player that can play yuv files
+    sudo apt-get install mplayer
     # get this repository
 	git clone --recursive git://github.com/ChristianKreuzberger/DASH-SVC-Toolchain.git
+    cd DASH-SVC-Toolchain
 
 
 Let's **build libdash** or just call the script `scripts/buildLibDash.sh`:
@@ -64,8 +68,10 @@ Let's **build libdash** or just call the script `scripts/buildLibDash.sh`:
 		echo "Failed building libdash";
 		exit -3
 	fi
-	LIBDASHPATH=../../libdash/libdash/build/bin
+	LIBDASHPATH=$(pwd)/bin
 	LIBDASH=$LIBDASHPATH/libdash.so
+	
+	# go back to the main directory
 	cd ../../../
 
 **Download and build** the **JSVM** reference software or just call the script `scripts/buildJsvm.sh`:
@@ -78,7 +84,7 @@ Let's **build libdash** or just call the script `scripts/buildLibDash.sh`:
 	cd jsvm/JSVM/H264Extension/build/linux
 	make
 	if [ $? -ne 0 ]; then 
-		echo BUILDING JSVM FAILED!
+		echo "BUILDING JSVM FAILED!"
 		exit -1
 	fi
 
@@ -89,17 +95,16 @@ Let's **build libdash** or just call the script `scripts/buildLibDash.sh`:
 
 	# test bitstream extractor static
 	./BitStreamExtractorStatic
-	cd ../../
-
+	
 	# go back to the main directory
-	cd DASH-SVC-Toolchain
+	cd ../../
 
 
 Test JSVM by **decoding a H.264/SVC video** from our dataset:
 
 
 	# let's test JSVM by downloading a H.264/SVC video from our dataset (svcseqs subfolder)
-	JSVMPATH=../jsvm/bin
+	JSVMPATH=$(pwd)/jsvm/bin
 
 	# download a video
 	wget http://concert.itec.aau.at/SVCDataset/svcseqs/II/bluesky-II-360p.264
@@ -107,7 +112,7 @@ Test JSVM by **decoding a H.264/SVC video** from our dataset:
 	diff bluesky_test.txt tests/bluesky_II_360p.txt
 
 	if [ $? -ne 0 ] ; then 
-		echo TESTING JSVM (TEST 1) FAILED!
+		echo "TESTING JSVM (TEST 1) FAILED!"
 		exit -2 
 	fi
 	
@@ -116,7 +121,7 @@ Test JSVM by **decoding a H.264/SVC video** from our dataset:
 	diff bluesky_decode_test.txt tests/decode_bluesky_II_360p.txt
 	
 	if [ $? -ne 0 ] ; then 
-		echo TESTING JSVM (TEST 2) FAILED!
+		echo "TESTING JSVM (TEST 2) FAILED!"
 		exit -2 
 	fi
 
@@ -127,7 +132,7 @@ Test JSVM by **decoding a H.264/SVC video** from our dataset:
 	rm bluesky-II-360p.yuv
 	
 	
-	echo TESTS DONE!!!
+	echo "TESTS DONE!!!"
 
 
 Congratulations! You have successfully downloaded and built libdash and the JSVM reference encoder. In the next
@@ -152,16 +157,16 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 	# call svc_merge.py and create the yuv files for the segments
 	# svc_merge.py for base layer only:
 	python svc_merge.py bluesky-II-720p.seg0-BL.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc
-	../$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-BL.264 bluesky-II-720p.seg0-BL.yuv
+	$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-BL.264 bluesky-II-720p.seg0-BL.yuv
 
 	# svc_merge.py for base layer + EL 1:
 	python svc_merge.py bluesky-II-720p.seg0-EL1.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc bluesky-II-720p.seg0-L1.svc
-	../$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL1.264 bluesky-II-720p.seg0-EL1.yuv
+	$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL1.264 bluesky-II-720p.seg0-EL1.yuv
 
 
 	# svc_merge.py for base layer + EL 1 + EL 2:
 	python svc_merge.py bluesky-II-720p.seg0-EL2.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc bluesky-II-720p.seg0-L1.svc bluesky-II-720p.seg0-L2.svc
-	../$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL2.264 bluesky-II-720p.seg0-EL2.yuv
+	$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL2.264 bluesky-II-720p.seg0-EL2.yuv
 
 	# use mplayer to playback the three yuv files
 	mplayer -demuxer rawvideo -rawvideo w=1280:h=720:format=i420 bluesky-II-720p.seg0-BL.yuv -loop 0
