@@ -1,28 +1,62 @@
-### DASH-SVC-Toolchain
-A Dynamic Adaptive Streaming over HTTP (DASH) toolchain for Scalable Video Coding (SVC).
-==================
-### Description
-This toolchain provides python scripts for converting videos of the H.264/SVC extension into several segments and several layers, allowing Dynamic Adaptive Streaming over HTTP.
+# DASH-SVC-Toolchain
+- - -
 
-### Current features and restrictions
+A _Dynamic Adaptive Streaming over HTTP_ (DASH) toolchain for _Scalable Video Coding_ (SVC). This open source toolkit 
+provides scripts for demultiplexing and re-multiplexing video content which has been encoded according to the 
+**H.264/SVC** extension. It can be used together with the DASH/SVC Dataset provided 
+[here](http://concert.itec.aau.at/SVCDataset/) ([http://concert.itec.aau.at/SVCDataset/](http://concert.itec.aau.at/SVCDataset/)).
+
+## Description
+This toolchain provides python scripts for converting videos encoded according to the **H.264/SVC** extension into 
+several segments and several layers (spatial and quality scalability), allowing Dynamic Adaptive Streaming over HTTP
+for Scalable Video Coding.
+This toolchain is based on the SVC Demux/Mux Tool of Michael Grafl (see 
+[http://www-itec.uni-klu.ac.at/dash/?page_id=1366]() for more information).
+This work was partly funded by the **Austrian Science Fund (FWF)** under the CHIST-ERA project **CONCERT** 
+(A Context-Adaptive Content Ecosystem Under Uncertainty), project number _I1402_ (see [http://www.concert-project]()
+for more details).
+
+This README file will cover downloading, building and executing the scripts and programs provided within this
+github repository.
+
+### Current features:
 * Testing JSVM
-* Decoding a DASH/SVC segment
+* Analyzing an H.264/SVC compliable stream
+* De-Multiplexing an H.264/SVC compliable stream into DASH/SVC segments
+* Re-Multiplexing DASH/SVC segments into an H.264/SVC compliable segment
+* Supports spatial and coarse-grain quality scalability
 
+### Known Restrictions:
 
-==================
-### Download and Tests
+* Temporal Scalability is not supported yet
+* Only coarse-grain Quality Scalability is supported
 
-This section describes the scripts for downloading and testing. Create a directory, e.g., SVCDemo, switch to this directory and follow the steps below:
+### Dependencies
+* Python 2.7
+* build-essentials and cmake
+* [JSVM](http://www.hhi.fraunhofer.de/de/kompetenzfelder/image-processing/research-groups/image-video-coding/svc-extension-of-h264avc/jsvm-reference-software.html) Reference Encoder
+* [libdash](https://github.com/bitmovin/libdash) library for parsing MPD files
+- - -
+
+## Download, Build and Test
+
+This section describes the scripts for downloading and testing. Create a directory, e.g., SVCDemo, switch to this 
+directory and follow the steps below:
+
+Install required packages:
 
 	# Requires: python (2.7), cvs, git
 	# libdash requires:
 	sudo apt-get install git-core build-essential cmake libxml2-dev libcurl4-openssl-dev
-
-	# get this repository
+    # get this repository
 	git clone git://github.com/ChristianKreuzberger/DASH-SVC-Toolchain.git
+
+
+First, **download and build libdash** or just call the script `scripts/buildLibDash.sh`:
 
 	# get libdash
 	git clone git://github.com/bitmovin/libdash.git
+	
 	cd libdash/libdash
 	mkdir build
 	cd build
@@ -36,9 +70,10 @@ This section describes the scripts for downloading and testing. Create a directo
 	LIBDASH=$LIBDASHPATH/libdash.so
 	cd ../../../
 
+**Download and build** the **JSVM** reference software or just call the script `scripts/buildJsvm.sh`:
 
 
-	# get JSVM reference software ( http://www.hhi.fraunhofer.de/de/kompetenzfelder/image-processing/research-groups/image-video-coding/svc-extension-of-h264avc/jsvm-reference-software.html ) 
+	# get JSVM reference software
 	cvs -d :pserver:jvtuser:jvt.Amd.2@garcon.ient.rwth-aachen.de:/cvs/jvt login
 	cvs -d :pserver:jvtuser@garcon.ient.rwth-aachen.de:/cvs/jvt checkout jsvm
 
@@ -60,6 +95,10 @@ This section describes the scripts for downloading and testing. Create a directo
 
 	# go back to the main directory
 	cd DASH-SVC-Toolchain
+
+
+Test JSVM by **decoding a H.264/SVC video** from our dataset:
+
 
 	# let's test JSVM by downloading a H.264/SVC video from our dataset (svcseqs subfolder)
 	JSVMPATH=../jsvm/bin
@@ -92,8 +131,13 @@ This section describes the scripts for downloading and testing. Create a directo
 	
 	echo TESTS DONE!!!
 
-==================
-### Decoding a DASH/SVC Segment
+
+Congratulations! You have successfully downloaded and built libdash and the JSVM reference encoder. In the next
+subsections you will try to decode a DASH/SVC segment with our toolchain.
+
+- - -
+
+## Decoding a DASH/SVC Segment
 
 Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 
@@ -134,8 +178,10 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 	cd ..
 	
 
-==================
-### Parsing MPD using libdash
+- - -
+
+
+## Parsing MPD using libdash
 This section details on how to parse the MPD using libdash, assuming we are in the main directory (DASH-SVC-Toolchain) again.
 
 
@@ -145,3 +191,11 @@ This section details on how to parse the MPD using libdash, assuming we are in t
 
 The output will contain a list of files.
 
+
+## Analyzing a H.264/SVC File
+
+Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
+
+## Demultiplexing a H.264/SVC File into multiple segments and layers
+
+Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
