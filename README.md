@@ -33,9 +33,10 @@ github repository.
 
 ### Dependencies
 * Python 2.7
+* CVS
 * build-essentials and cmake
 * [JSVM](http://www.hhi.fraunhofer.de/de/kompetenzfelder/image-processing/research-groups/image-video-coding/svc-extension-of-h264avc/jsvm-reference-software.html) Reference Encoder
-* [libdash](https://github.com/bitmovin/libdash) library for parsing MPD files
+* [libdash](https://github.com/bitmovin/libdash) library for parsing MPD files (included in this github project)
 - - -
 
 ## Download, Build and Test
@@ -49,14 +50,11 @@ Install required packages:
 	# libdash requires:
 	sudo apt-get install git-core build-essential cmake libxml2-dev libcurl4-openssl-dev
     # get this repository
-	git clone git://github.com/ChristianKreuzberger/DASH-SVC-Toolchain.git
+	git clone --recursive git://github.com/ChristianKreuzberger/DASH-SVC-Toolchain.git
 
 
-First, **download and build libdash** or just call the script `scripts/buildLibDash.sh`:
+Let's **build libdash** or just call the script `scripts/buildLibDash.sh`:
 
-	# get libdash
-	git clone git://github.com/bitmovin/libdash.git
-	
 	cd libdash/libdash
 	mkdir build
 	cd build
