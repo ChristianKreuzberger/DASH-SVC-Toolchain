@@ -25,6 +25,7 @@ github repository.
 * De-Multiplexing an H.264/SVC compatible stream into DASH/SVC segments
 * Re-Multiplexing DASH/SVC segments into an H.264/SVC compatible segment
 * Supports spatial and coarse-grain quality scalability
+* Parsing SVC MPD file and extracting the URLs of all segments and layers
 
 ### Known Restrictions:
 
@@ -193,11 +194,25 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 ## Parsing MPD using libdash
 This section details on how to parse the MPD using libdash, assuming we are in the main directory (DASH-SVC-Toolchain) again.
 
+parseMPD uses libdash to parse the MPD files of our dataset, and prints all segments and layers. This tool can be used
+for testing our dataset, e.g., downloading a full set of segments and layers, and then decoding them using the tools
+described in the Decoding section.
+
 	LIBDASHPATH=$(pwd)/libdash/libdash/build/bin
 	LIBDASH=$LIBDASHPATH/libdash.so
 	cd parseMPD
 	make
+	# example 1: Print segments of any MPD file (in this case: http://concert.itec.aau.at/SVCDataset/dataset/mpd/factory-I-720p.mpd)
 	LD_LIBRARY_PATH=$LIBDASHPATH/ ./parseMPD
+	# example 2: Print segments of a specified MPD file
+	LD_LIBRARY_PATH=$LIBDASHPATH/ ./parseMPD http://concert.itec.aau.at/SVCDataset/dataset/mpd/rushhour-I-360p.mpd
+	# example 3: Print only a specific layer of the specified MPD file
+	LD_LIBRARY_PATH=$LIBDASHPATH/ ./parseMPD http://concert.itec.aau.at/SVCDataset/dataset/mpd/rushhour-I-360p.mpd 0
+	# Layer 1
+	LD_LIBRARY_PATH=$LIBDASHPATH/ ./parseMPD http://concert.itec.aau.at/SVCDataset/dataset/mpd/rushhour-I-360p.mpd 1
+	# Layer 2
+	LD_LIBRARY_PATH=$LIBDASHPATH/ ./parseMPD http://concert.itec.aau.at/SVCDataset/dataset/mpd/rushhour-I-360p.mpd 2
+	
 
 The output will contain a list of SVC segment files.
 
