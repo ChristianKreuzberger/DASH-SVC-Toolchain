@@ -21,22 +21,23 @@ github repository.
 
 ### Current features:
 * Testing JSVM
-* Analyzing an H.264/SVC compliable stream
-* De-Multiplexing an H.264/SVC compliable stream into DASH/SVC segments
-* Re-Multiplexing DASH/SVC segments into an H.264/SVC compliable segment
+* Analysing an H.264/SVC compatible stream
+* De-Multiplexing an H.264/SVC compatible stream into DASH/SVC segments
+* Re-Multiplexing DASH/SVC segments into an H.264/SVC compatible segment
 * Supports spatial and coarse-grain quality scalability
 
 ### Known Restrictions:
 
-* Temporal Scalability is not supported yet
-* Only coarse-grain Quality Scalability is supported
+* Temporal Scalability is not supported yet.
+* Only coarse-grain Quality Scalability is supported.
+* JSVM might not compile on all platforms.
 
 ### Dependencies
 * Python 2.7
-* CVS
+* CVS (required for downloading JSVM)
 * build-essentials and cmake
 * [JSVM](http://www.hhi.fraunhofer.de/de/kompetenzfelder/image-processing/research-groups/image-video-coding/svc-extension-of-h264avc/jsvm-reference-software.html) Reference Encoder
-* [libdash](https://github.com/bitmovin/libdash) library for parsing MPD files (included in this github project)
+* [libdash](https://github.com/bitmovin/libdash) library for parsing MPD files (included in this github project, required for MPD parsing)
 
 - - -
 
@@ -57,7 +58,8 @@ Install required packages and download this git repository:
     cd DASH-SVC-Toolchain
 
 
-Let's **build libdash** or just call the script `scripts/buildLibDash.sh`:
+Let's **build libdash** or just call the script `build_scripts/buildLibDash.sh`:
+(Note: libdash is required for parsing MPD files; if you don't intend to do that, you don't need to build libdash)
 
 	cd libdash/libdash
 	mkdir build
@@ -68,14 +70,12 @@ Let's **build libdash** or just call the script `scripts/buildLibDash.sh`:
 		echo "Failed building libdash";
 		exit -3
 	fi
-	LIBDASHPATH=$(pwd)/bin
-	LIBDASH=$LIBDASHPATH/libdash.so
 	
 	# go back to the main directory
 	cd ../../../
 
-**Download and build** the **JSVM** reference software or just call the script `scripts/buildJsvm.sh`:
-
+**Download and build** the **JSVM** reference software or just call the script `build_scripts/buildJsvm.sh`:
+(Note: JSVM might not compile on all platforms. We have successfully compiled JSVM under Ubuntu 12.04.)
 
 	# get JSVM reference software
 	cvs -d :pserver:jvtuser:jvt.Amd.2@garcon.ient.rwth-aachen.de:/cvs/jvt login
@@ -105,10 +105,11 @@ Test JSVM by **decoding a H.264/SVC video** from our dataset:
 
 	# let's test JSVM by downloading a H.264/SVC video from our dataset (svcseqs subfolder)
 	JSVMPATH=$(pwd)/jsvm/bin
+	export PATH=$PATH:$JSVMPATH
 
 	# download a video
 	wget http://concert.itec.aau.at/SVCDataset/svcseqs/II/bluesky-II-360p.264
-	$JSVMPATH/BitStreamExtractorStatic bluesky-II-360p.264 > bluesky_test.txt
+	BitStreamExtractorStatic bluesky-II-360p.264 > bluesky_test.txt
 	diff bluesky_test.txt tests/bluesky_II_360p.txt
 
 	if [ $? -ne 0 ] ; then 
@@ -117,7 +118,7 @@ Test JSVM by **decoding a H.264/SVC video** from our dataset:
 	fi
 	
 	# try decoding it
-	$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-360p.264 bluesky-II-360p.yuv > bluesky_decode_test.txt
+	H264AVCDecoderLibTestStatic bluesky-II-360p.264 bluesky-II-360p.yuv > bluesky_decode_test.txt
 	diff bluesky_decode_test.txt tests/decode_bluesky_II_360p.txt
 	
 	if [ $? -ne 0 ] ; then 
@@ -143,7 +144,12 @@ subsections you will try to decode a DASH/SVC segment with our toolchain.
 ## Decoding a DASH/SVC Segment
 
 Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
+(Note: This step requires JSVM binaries)
 
+	# make sure JSVM is in PATH
+	JSVMPATH=$(pwd)/jsvm/bin
+	export PATH=$PATH:$JSVMPATH
+	
 	cd decode
 	# Download init segment
 	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/II/segs/720p/bluesky-II-720p.init.svc
@@ -157,16 +163,16 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 	# call svc_merge.py and create the yuv files for the segments
 	# svc_merge.py for base layer only:
 	python svc_merge.py bluesky-II-720p.seg0-BL.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc
-	$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-BL.264 bluesky-II-720p.seg0-BL.yuv
+	H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-BL.264 bluesky-II-720p.seg0-BL.yuv
 
 	# svc_merge.py for base layer + EL 1:
 	python svc_merge.py bluesky-II-720p.seg0-EL1.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc bluesky-II-720p.seg0-L1.svc
-	$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL1.264 bluesky-II-720p.seg0-EL1.yuv
+	H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL1.264 bluesky-II-720p.seg0-EL1.yuv
 
 
 	# svc_merge.py for base layer + EL 1 + EL 2:
 	python svc_merge.py bluesky-II-720p.seg0-EL2.264 bluesky-II-720p.init.svc bluesky-II-720p.seg0-L0.svc bluesky-II-720p.seg0-L1.svc bluesky-II-720p.seg0-L2.svc
-	$JSVMPATH/H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL2.264 bluesky-II-720p.seg0-EL2.yuv
+	H264AVCDecoderLibTestStatic bluesky-II-720p.seg0-EL2.264 bluesky-II-720p.seg0-EL2.yuv
 
 	# use mplayer to playback the three yuv files
 	mplayer -demuxer rawvideo -rawvideo w=1280:h=720:format=i420 bluesky-II-720p.seg0-BL.yuv -loop 0
@@ -187,12 +193,13 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 ## Parsing MPD using libdash
 This section details on how to parse the MPD using libdash, assuming we are in the main directory (DASH-SVC-Toolchain) again.
 
-
+	LIBDASHPATH=$(pwd)/libdash/libdash/build/bin
+	LIBDASH=$LIBDASHPATH/libdash.so
 	cd parseMPD
 	make
-	LD_LIBRARY_PATH=../../libdash/libdash/build/bin/ ./parseMPD
+	LD_LIBRARY_PATH=$LIBDASHPATH/ ./parseMPD
 
-The output will contain a list of files.
+The output will contain a list of SVC segment files.
 
 
 ## Analyzing a H.264/SVC File
