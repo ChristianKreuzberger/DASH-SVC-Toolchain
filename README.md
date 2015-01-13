@@ -33,6 +33,9 @@ github repository.
 * Only coarse-grain Quality Scalability is supported.
 * JSVM might not compile on all platforms.
 
+### Multiplexing
+![Multiplexing](https://raw.githubusercontent.com/ChristianKreuzberger/DASH-SVC-Toolchain/master/doc/dash_svc.png "Multiplexing SVC Content")
+
 ### Dependencies
 * Python 2.7
 * CVS (required for downloading JSVM)
