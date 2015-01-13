@@ -26,6 +26,7 @@ def sps_extract_width_height(byte_array):
     s.read('uint:3') # ignore
 
     level_idc = s.read('uint:8')
+
     seq_param_set_id = s.read('ue')
 
     if profile_idc == 100 or profile_idc == 110 or profile_idc == 122 or profile_idc == 244 or profile_idc == 44 or profile_idc == 83 or profile_idc == 86 or profile_idc == 118:
@@ -68,5 +69,7 @@ def sps_extract_width_height(byte_array):
     Width = ((pic_width_in_mbs_minus1 + 1) * 16) - (frame_crop_right_offset * 2) - (frame_crop_left_offset * 2)
     Height = ((2 - frame_mbs_only_flag) * (pic_height_in_map_units_minus1 + 1) * 16) - frame_crop_bottom_offset*2 - frame_crop_top_offset*2
 
-    return {'ProfileIDC': profile_idc, 'LevelIDC': level_idc, 'SPS-ID': seq_param_set_id, 'Width': Width, 'Height': Height}
+    FramesPerSecond = 0
+
+    return {'ProfileIDC': profile_idc, 'LevelIDC': level_idc, 'SPS-ID': seq_param_set_id, 'Width': Width, 'Height': Height, 'FPS': FramesPerSecond}
 # end function

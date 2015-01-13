@@ -38,6 +38,8 @@ github repository.
 
 ### Dependencies
 * Python 2.7
+* Python easy_install
+* Python module: bitstring
 * CVS (required for downloading JSVM)
 * build-essentials and cmake
 * [JSVM](http://www.hhi.fraunhofer.de/de/kompetenzfelder/image-processing/research-groups/image-video-coding/svc-extension-of-h264avc/jsvm-reference-software.html) Reference Encoder
@@ -55,6 +57,11 @@ Install required packages and download this git repository:
 	# Requires: python (2.7), cvs, git
 	# libdash requires:
 	sudo apt-get install cvs git-core build-essential cmake libxml2-dev libcurl4-openssl-dev
+	# python setup-tools (easy install)
+	sudo apt-get install python-setuptools
+	# python module bitstring
+	sudo easy_install bitstring
+	
     # if you want to play yuv files, you need mplayer or any other player that can play yuv files
     sudo apt-get install mplayer
     # get this repository
