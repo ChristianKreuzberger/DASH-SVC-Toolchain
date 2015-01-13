@@ -3,6 +3,6 @@
 
 #include <libdash.h>
 
-std::vector<std::string> GetSVCSegmentURLs(const char* url);
+std::vector<std::string> GetSVCSegmentURLs(const char* url, const char* layer_id);
 
 #endif
