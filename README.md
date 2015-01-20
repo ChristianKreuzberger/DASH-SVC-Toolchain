@@ -264,8 +264,106 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 (Note: This step requires JSVM binaries)
 
 
-TODO TODO TODO 
-
+	# make sure JSVM is in PATH
+	JSVMPATH=$(pwd)/jsvm/bin
+	export PATH=$PATH:$JSVMPATH
+	
+	cd decode
+	# Download init segment
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.init.svc
+	
+	# Download segment 0, 640x360 @ 6,12,24 fps
+	# Download segment 0, Base Layer
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L0.svc
+	# Download segment 0, temporal EL 1, enhances base layer 
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L1.svc
+	# Download segment 0, temporal EL 2, enhances EL 1
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L2.svc
+	
+	# Download segment 0, 1280x720 @ 6,12,24 fps
+	# Download segment 0, EL 16 (enhances the base layer)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L16.svc
+	# Download segment 0, EL 17 (enhances EL 16 and EL 1)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L17.svc
+	# Download segment 0, EL 18 (enhances EL 17 and EL 2)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L18.svc
+	
+	# Download segment 0, 1920x1080 @ 6,12,24 fps
+	# Download segment 0, EL 32 (enhances EL 16)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L32.svc
+	# Download segment 0, EL 33 (enhances EL 17 and EL 32)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L33.svc
+	# Download segment 0, EL 34 (enhances EL 18 and EL 33)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L34.svc
+	
+	
+	# Download segment 0, 1920x1080 @ 6,12,24 fps, better quality
+	# Download segment 0, EL 48 (enhances EL 32)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L48.svc
+	# Download segment 0, EL 49 (enhances EL 33 and EL 48)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L49.svc
+	# Download segment 0, EL 50 (enhances EL 34 and EL 49)
+	wget http://concert.itec.aau.at/SVCDataset/dataset/bluesky/III/segs/1080p-temp/bluesky-III-1080p.seg0-L50.svc
+	
+	
+    # call svc_merge.py and create the yuv files for the segments
+    
+    # 6 fps (temporal id = 0)
+    
+	# svc_merge.py for base layer only (6 fps in this case) - 640x360
+	python svc_merge.py bluesky-III-1080p.seg0-BL.264 bluesky-III-1080p.init.svc bluesky-III-1080p.seg0-L0.svc
+	H264AVCDecoderLibTestStatic bluesky-III-1080p.seg0-BL.264 bluesky-III-1080p.seg0-BL.yuv
+	
+	# svc_merge.py for EL 16 (6 fps in this case) - 1280x720
+	python svc_merge.py bluesky-III-1080p.seg0-EL16.264 bluesky-III-1080p.init.svc bluesky-III-1080p.seg0-L0.svc bluesky-III-1080p.seg0-L16.svc
+	H264AVCDecoderLibTestStatic bluesky-III-1080p.seg0-EL16.264 bluesky-III-1080p.seg0-EL16.yuv
+	
+	# svc_merge.py for EL 32 (6 fps in this case) - 1920x1080
+	python svc_merge.py bluesky-III-1080p.seg0-EL32.264 bluesky-III-1080p.init.svc bluesky-III-1080p.seg0-L0.svc bluesky-III-1080p.seg0-L16.svc bluesky-III-1080p.seg0-L32.svc
+	H264AVCDecoderLibTestStatic bluesky-III-1080p.seg0-EL32.264 bluesky-III-1080p.seg0-EL32.yuv
+	
+	# svc_merge.py for EL 48 (6 fps in this case) - 1920x1080 - high quality
+	python svc_merge.py bluesky-III-1080p.seg0-EL48.264 bluesky-III-1080p.init.svc bluesky-III-1080p.seg0-L0.svc bluesky-III-1080p.seg0-L16.svc bluesky-III-1080p.seg0-L32.svc bluesky-III-1080p.seg0-L48.svc
+	H264AVCDecoderLibTestStatic bluesky-III-1080p.seg0-EL48.264 bluesky-III-1080p.seg0-EL48.yuv
+	
+	# 12 fps (temporal id = 1), depends on 6 fps (temporal id = 0)
+	# TODO
+	
+	
+    # 24 fps (temporal id = 2), depends on 12 fps (temporal id = 1) and 6 fps (temporal id = 0)
+	# TODO
+	
+	
+	
+	# use mplayer to playback the three yuv files
+	# 640x360 @ 6,12,24 fps
+	mplayer -demuxer rawvideo -rawvideo w=640:h=360:format=i420:fps=6 bluesky-III-1080p.seg0-BL.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=640:h=360:format=i420:fps=12 bluesky-III-1080p.seg0-EL1.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=640:h=360:format=i420:fps=24 bluesky-III-1080p.seg0-EL2.yuv -loop 0
+	
+	# 1280x720 @ 6,12,24 fps
+	mplayer -demuxer rawvideo -rawvideo w=1280:h=720:format=i420:fps=6 bluesky-III-1080p.seg0-EL16.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=1280:h=720:format=i420:fps=12 bluesky-III-1080p.seg0-EL17.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=1280:h=720:format=i420:fps=24 bluesky-III-1080p.seg0-EL18.yuv -loop 0
+	
+	# 1920x1080 @ 6,12,24 fps
+	mplayer -demuxer rawvideo -rawvideo w=1920:h=1080:format=i420:fps=6 bluesky-III-1080p.seg0-EL32.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=1920:h=1080:format=i420:fps=12 bluesky-III-1080p.seg0-EL33.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=1920:h=1080:format=i420:fps=24 bluesky-III-1080p.seg0-EL34.yuv -loop 0
+	
+	# 1920x1080 @ 6,12,24 fps - high quality
+	mplayer -demuxer rawvideo -rawvideo w=1920:h=1080:format=i420:fps=6 bluesky-III-1080p.seg0-EL48.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=1920:h=1080:format=i420:fps=12 bluesky-III-1080p.seg0-EL49.yuv -loop 0
+	mplayer -demuxer rawvideo -rawvideo w=1920:h=1080:format=i420:fps=24 bluesky-III-1080p.seg0-EL50.yuv -loop 0
+	
+	
+	
+	# remove the files we created
+	rm *.yuv
+	rm *.svc
+	rm *.264
+	
+	cd ..
 
 - - -
 
@@ -317,6 +415,23 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
     
     
 
-## Demultiplexing a H.264/SVC File into multiple segments and layers
+## Demultiplexing a H.264/SVC File into multiple segments and layers without temporal scalability
 
 Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
+
+    TODO
+    TODO
+    TODO
+    
+    
+## Demultiplexing a H.264/SVC File into multiple segments and layers with temporal scalability
+
+Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
+
+    TODO
+    TODO
+    TODO
+    
+    
+
+    
