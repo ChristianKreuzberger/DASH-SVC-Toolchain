@@ -9,11 +9,15 @@
 # This work was partly funded by the Austrian Science Fund (FWF) under the CHIST-ERA project CONCERT (A Context-Adaptive Content Ecosystem Under Uncertainty), project number \textit{I1402}.\\
 
 
-# Usage Example 1: Analyze SVC Stream:
-#                  python demultiplex.py MySVCStream.264 48
-# Usage Example 2: Convert MainConcept SVC Stream to DASH Stream
+# Usage Example 1: Analyze SVC Stream at a given rate of frames per segments:
+#                  python demultiplex.py -a MySVCStream.264 48
+# Usage Example 2: Analyze SVC Stream at a given rate of frames per segments and with 3 temporal scalabilty layers:
+#                  python demultiplex.py -a MySVCStream.264 48 -t 3
+# Usage Example 3: Convert MainConcept SVC Stream to DASH Stream
 #                  python demultiplex.py MySVCStream.264 48 outputFolder/ 24
-# Usage Example 3: Convert JSVM SVC Stream to DASH Stream (need to set the 5th parameter (skipFrames), as JSVM
+# Usage Example 4: Convert MainConcept SVC Stream to DASH Stream with 3 temporal layers
+#                  python demultiplex.py MySVCStream.264 48 outputFolder/ 24 -t 3
+# Usage Example 5: Convert JSVM SVC Stream to DASH Stream (need to set the 5th parameter (skipFrames), as JSVM
 #                  fails to encode the first couple of frames properly, namely the 2nd I-Frame is at the wrong
 #                  position and does not allow to segmentize the first n frames.
 #                  python demultplex.py MySVCStream-jsvm.264 48 outputfolder/ 24 43
@@ -94,7 +98,7 @@ if not cmdArgs.temporal is None:
 
 
 # check if output folder exists, if not, create it
-if not os.path.exists(outputFolder):
+if not os.path.exists(outputFolder) and not cmdArgs.analyze:
     os.makedirs(outputFolder)
 
 # get base name of the input file ($base$.264)
@@ -143,11 +147,10 @@ layerDashInfo = {}
 
 # array for buffering the segment output (per layer)
 segmentOutputBuffer = {}
-
+layerId=0
 # go through all NAL units
 for n in nalus:
     # local variables for the loop
-    layerId = 0
     did = qid = tid = -1
     extraText = ""
 
@@ -252,7 +255,7 @@ for n in nalus:
             if len(n) == 5:  # this is an AU delimiter, not a header
                 header = False
     elif naluType == 10: # detect end of sequence
-        extraText = "end of sequenece"
+        extraText = "end of sequence"
     elif naluType == 11: # end of stream
         extraText = "end of stream"
     elif naluType == 7:
