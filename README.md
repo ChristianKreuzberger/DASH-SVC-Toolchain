@@ -302,6 +302,21 @@ The output will contain a list of SVC segment files.
 
 Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 
+    cd demultiplex
+    
+    # download a raw svc sequence from the dataset
+    wget http://concert.itec.aau.at/SVCDataset/svcseqs/IV/bluesky-IV.264
+    
+    # analyze this sequence 
+    python demultiplex.py -a bluesky-IV.264 48 > analyze_normal.txt
+    # analyze this sequence with temporal scalability added
+    python demultiplex.py -a bluesky-IV.264 48 -t 3 > analyze_temporal.txt
+    
+    # remove the downloaded .264 file
+    rm bluesky-IV.264
+    
+    
+
 ## Demultiplexing a H.264/SVC File into multiple segments and layers
 
 Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
