@@ -39,7 +39,7 @@ github repository.
 ### Dependencies
 * Python 2.7
 * Python easy_install
-* Python module: bitstring
+* Python module: bitstring (if you can not install it, go to the [Bitstring PyPy Website](https://pypi.python.org/pypi/bitstring) and use bitstring.py )
 * CVS (required for downloading JSVM)
 * build-essentials and cmake
 * [JSVM](http://www.hhi.fraunhofer.de/de/kompetenzfelder/image-processing/research-groups/image-video-coding/svc-extension-of-h264avc/jsvm-reference-software.html) Reference Encoder
