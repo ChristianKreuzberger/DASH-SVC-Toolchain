@@ -419,18 +419,30 @@ Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 
 Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 
-    TODO
-    TODO
-    TODO
+    cd demultiplex
+    
+    # download a raw svc sequence from the dataset
+    wget http://concert.itec.aau.at/SVCDataset/svcseqs/IV/bluesky-IV.264
+    
+    # demultiplex - 24 frames per second, 48 frames per segment, skip 0 frames at the beginning (skip frames only for JSVM), baseURL = http://...
+    python demultiplex.py bluesky-IV.264 48 dataset/bluesky/IV/segs/1080p/ 24 0 http://concert.itec.aau.at/SVCDataset/ > analyze_normal.txt
+
     
     
 ## Demultiplexing a H.264/SVC File into multiple segments and layers with temporal scalability
 
 Assuming you are in the DASH-SVC-Toolchain directory, follow these steps:
 
-    TODO
-    TODO
-    TODO
+    cd demultiplex
+    
+    # download a raw svc sequence from the dataset
+    wget http://concert.itec.aau.at/SVCDataset/svcseqs/IV/bluesky-IV.264
+    
+    # demultiplex - 24 frames per second, 48 frames per segment, skip 0 frames at the beginning (skip frames only for JSVM), baseURL = http://...
+    # temporal scalability: 3 layers (24 fps, 12 fps, 6 fps)
+    python demultiplex.py -t 3 bluesky-IV.264 48 dataset/bluesky/IV/segs/1080p/ 24 0 http://concert.itec.aau.at/SVCDataset/ > analyze_normal.txt
+
+    
     
     
 
