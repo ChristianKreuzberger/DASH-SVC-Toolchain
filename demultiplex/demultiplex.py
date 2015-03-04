@@ -417,7 +417,7 @@ if writeDASHOutput:
 
 
     mpdAdaptationSegmentsSVC = """
-     <Representation id="{representationId}" dependencyId="{dependencyId}" codecs="SVC" mimeType="video/svc"
+     <Representation id="{representationId}" dependencyId="{dependencyId}" codecs="SVC" mimeType="video/264"
                                 width="{width}" height="{height}" frameRate="{fps}" sar="1:1" bandwidth="{bandwidth}">
                        <SegmentList duration="{framesSegment}" timescale="{fps}">
     {SegmentList}
@@ -452,13 +452,13 @@ if writeDASHOutput:
     # start new adaptation set
     mpd += mpdAdaptationSetStart.format(maxHeight = maxHeight, maxWidth = maxWidth, maxFps = frameRate, initFile = initFilename)
 
-    lastNonTemporalLayerId=-1
-    lastLastNonTemporalLayerId=-1
     # append each layer
     orderedLayerList = sorted(layerDashInfo.keys())
     cumulativeBitrate = 0.0
 
+    # layerIdList
     layerIdList = []
+
 
     for layerName in orderedLayerList:
         layer = layerDashInfo[layerName]
@@ -467,38 +467,65 @@ if writeDASHOutput:
             segmentList += mpdAdaptationSegmentURL.format(SegmentFileName = segment)
 
         # calculate bitrate
+        # calculate bytes per segment
         bitrate = float(layer['Bytes']) / float(len(layer['Segments']))
         bitrate = int(bitrate / float(framesPerSeg / frameRate) * 8)
 
-        cumulativeBitrate += bitrate
+
 
         dependencyId = 0
-        if layer['Temporal']: # temporal layers always depend on the last temporal layer
-            # if layerId < 16 --> this belongs to the base layer
-            if layer['LayerId'] < 16:
-                dependencyId = layer['LayerId'] - 1
-            elif lastLastNonTemporalLayerId != layer['LayerId']:
-                tmpDependencyId = layer['LayerId'] - lastNonTemporalLayerId
-                dependencyId = str(layer['LayerId']-1) + " " + str(lastLastNonTemporalLayerId+tmpDependencyId)
-            else:
-                dependencyId = lastNonTemporalLayerId
+        if numTemporalLayers > 0: # temporal
+            # temporal layers depend on all temporal layers of the same quality with less fps
+            # and all the layers physically above those
+            # e.g.: LayerId 2 depends on 0 and 1
+            # e.g.: LayerId 16 depends on layer 0
+            # e.g.: LayerId 17 depends on 16 and 0 and 1
+            # first step: Subtract 16 from the layer id until it is below 16
+            layerIdList = []
+
+            tmpId = layer['LayerId']
+            while tmpId >= 0:
+                # calculate which part of temporal layer this is by divding by 16 and looking at the remainder
+                remLayer = tmpId % 16
+                # now add remLayer-1 etc... to the list, until we reach 0
+                tmpI = 0
+                while remLayer > 0:
+                    remLayer -= 1
+                    tmpI += 1
+                    layerIdList.append(str(tmpId - tmpI))
+
+                tmpId -= 16
+                if tmpId >= 0:
+                    layerIdList.append(str(tmpId))
+
+            # now that we have the layerIdList, calculate the cumulative bitrate
+            cumulativeBitrate = bitrate # of current layer
+
+            for tmpId in layerIdList:
+                tmpLayer = layerDashInfo[int(tmpId)]
+                # calculate bytes per segment
+                bitrate = float(tmpLayer['Bytes']) / float(len(tmpLayer['Segments']))
+                bitrate = int(bitrate / float(framesPerSeg / frameRate) * 8)
+
+                cumulativeBitrate += bitrate
+
+            dependencyId = ' '.join(layerIdList)
+
         else: # not temporal
             # non temporal layers depend on all layers, separated by spaces
             dependencyId = ' '.join(layerIdList)
+            cumulativeBitrate += bitrate
 
         if layer['LayerId'] == 0: # base layer, AVC and does not depend on any other layer
             mpd += mpdAdaptationSegmentsAVC.format(width=layer['Width'], height=layer['Height'], fps=layer['FrameRate'],
-                                                   bandwidth=cumulativeBitrate,framesSegment=framesPerSeg, SegmentList=segmentList,
+                                                   bandwidth=int(cumulativeBitrate),framesSegment=framesPerSeg, SegmentList=segmentList,
                                                 representationId=layer['LayerId'])
         else: # this layer does depend on something
             mpd += mpdAdaptationSegmentsSVC.format(width=layer['Width'], height=layer['Height'], fps=layer['FrameRate'],
-                                                   bandwidth=cumulativeBitrate,framesSegment=framesPerSeg, SegmentList=segmentList,
+                                                   bandwidth=int(cumulativeBitrate),framesSegment=framesPerSeg, SegmentList=segmentList,
                                                 representationId=layer['LayerId'],dependencyId=dependencyId)
-        if not layer['Temporal']:
-            lastLastNonTemporalLayerId = lastNonTemporalLayerId
-            lastNonTemporalLayerId = layer['LayerId']
 
-        layerIdList.append(layer['LayerId'])
+        layerIdList.append(str(layer['LayerId']))
 
     # close adaptation set and mpd file
     mpd += mpdAdaptationSetClosing
