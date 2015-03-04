@@ -400,14 +400,14 @@ if writeDASHOutput:
     """
 
     mpdAdaptationSetStart = """
-     <AdaptationSet bitstreamSwitching="true" mimeType="video/svc" startWithSAP="1" maxWidth="{maxWidth}" maxHeight="{maxHeight}" maxFrameRate="{maxFps}" par="16:9">
+     <AdaptationSet bitstreamSwitching="true" mimeType="video/264" startWithSAP="1" maxWidth="{maxWidth}" maxHeight="{maxHeight}" maxFrameRate="{maxFps}" par="16:9">
                     <SegmentBase>
                         <Initialization sourceURL="{initFile}"/>
                     </SegmentBase>
     """
 
     mpdAdaptationSegmentsAVC = """
-     <Representation id="{representationId}" codecs="AVC" mimeType="video/svc"
+     <Representation id="{representationId}" codecs="AVC" mimeType="video/264"
                                 width="{width}" height="{height}" frameRate="{fps}" sar="1:1" bandwidth="{bandwidth}">
                        <SegmentList duration="{framesSegment}" timescale="{fps}">
 {SegmentList}
@@ -456,6 +456,10 @@ if writeDASHOutput:
     lastLastNonTemporalLayerId=-1
     # append each layer
     orderedLayerList = sorted(layerDashInfo.keys())
+    cumulativeBitrate = 0.0
+
+    layerIdList = []
+
     for layerName in orderedLayerList:
         layer = layerDashInfo[layerName]
         segmentList = ""
@@ -465,6 +469,8 @@ if writeDASHOutput:
         # calculate bitrate
         bitrate = float(layer['Bytes']) / float(len(layer['Segments']))
         bitrate = int(bitrate / float(framesPerSeg / frameRate) * 8)
+
+        cumulativeBitrate += bitrate
 
         dependencyId = 0
         if layer['Temporal']: # temporal layers always depend on the last temporal layer
@@ -476,20 +482,23 @@ if writeDASHOutput:
                 dependencyId = str(layer['LayerId']-1) + " " + str(lastLastNonTemporalLayerId+tmpDependencyId)
             else:
                 dependencyId = lastNonTemporalLayerId
-        else:
-            dependencyId = lastNonTemporalLayerId
+        else: # not temporal
+            # non temporal layers depend on all layers, separated by spaces
+            dependencyId = ' '.join(layerIdList)
 
         if layer['LayerId'] == 0: # base layer, AVC and does not depend on any other layer
-            mpd += mpdAdaptationSegmentsAVC.format(width=layer['Width'], height=layer['Height'], fps=layer['FrameRate'],bandwidth=bitrate,
-                                                   framesSegment=framesPerSeg, SegmentList=segmentList,
+            mpd += mpdAdaptationSegmentsAVC.format(width=layer['Width'], height=layer['Height'], fps=layer['FrameRate'],
+                                                   bandwidth=cumulativeBitrate,framesSegment=framesPerSeg, SegmentList=segmentList,
                                                 representationId=layer['LayerId'])
         else: # this layer does depend on something
-            mpd += mpdAdaptationSegmentsSVC.format(width=layer['Width'], height=layer['Height'], fps=layer['FrameRate'],bandwidth=bitrate,
-                                                   framesSegment=framesPerSeg, SegmentList=segmentList,
+            mpd += mpdAdaptationSegmentsSVC.format(width=layer['Width'], height=layer['Height'], fps=layer['FrameRate'],
+                                                   bandwidth=cumulativeBitrate,framesSegment=framesPerSeg, SegmentList=segmentList,
                                                 representationId=layer['LayerId'],dependencyId=dependencyId)
-        if layer['Temporal'] == False:
+        if not layer['Temporal']:
             lastLastNonTemporalLayerId = lastNonTemporalLayerId
             lastNonTemporalLayerId = layer['LayerId']
+
+        layerIdList.append(layer['LayerId'])
 
     # close adaptation set and mpd file
     mpd += mpdAdaptationSetClosing
