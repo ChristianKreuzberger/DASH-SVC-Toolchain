@@ -459,6 +459,9 @@ if writeDASHOutput:
     # layerIdList
     layerIdList = []
 
+    # usual segment length
+    segmentDurationInSeconds = framesPerSeg / frameRate
+
 
     for layerName in orderedLayerList:
         layer = layerDashInfo[layerName]
@@ -518,11 +521,11 @@ if writeDASHOutput:
 
         if layer['LayerId'] == 0: # base layer, AVC and does not depend on any other layer
             mpd += mpdAdaptationSegmentsAVC.format(width=layer['Width'], height=layer['Height'], fps=layer['FrameRate'],
-                                                   bandwidth=int(cumulativeBitrate),framesSegment=framesPerSeg, SegmentList=segmentList,
+                                                   bandwidth=int(cumulativeBitrate),framesSegment=segmentDurationInSeconds * layer['FrameRate'], SegmentList=segmentList,
                                                 representationId=layer['LayerId'])
         else: # this layer does depend on something
             mpd += mpdAdaptationSegmentsSVC.format(width=layer['Width'], height=layer['Height'], fps=layer['FrameRate'],
-                                                   bandwidth=int(cumulativeBitrate),framesSegment=framesPerSeg, SegmentList=segmentList,
+                                                   bandwidth=int(cumulativeBitrate),framesSegment=segmentDurationInSeconds * layer['FrameRate'], SegmentList=segmentList,
                                                 representationId=layer['LayerId'],dependencyId=dependencyId)
 
         layerIdList.append(str(layer['LayerId']))
