@@ -47,6 +47,37 @@ github repository.
 
 - - -
 
+## Citation
+If you plan to use our work, please cite our paper:
+
+Christian Kreuzberger, Daniel Posch, Hermann Hellwagner, "A Scalable Video Coding Dataset and Toolchain for Dynamic Adaptive Streaming over HTTP", In Proceedings of ACM MMSys '15, March 18 - March 20, 2015, Portland, Oregon.
+
+```
+@INPROCEEDINGS{KreuzbergerDashSVCDatasetToolchain2015,
+  language = {EN},
+  author = {Kreuzberger, Christian and Posch, Daniel and Hellwagner, Hermann},
+  title = {A Scalable Video Coding Dataset and Toolchain for Dynamic Adaptive
+	Streaming over HTTP},
+  editor = {Wei, Tsang Ooi},
+  talktype = {registered},
+  location = {Portland, Oregon},
+  talkdate = {2015.03.18},
+  booktitle = {Proceedings of the 6th ACM Multimedia Systems Conference},
+  publisher = {ACM},
+  address = {New York, NY, USA},
+  pages = {213--218},
+  month = {mar},
+  year = {2015},
+  isbn13 = {978-1-4503-3351-1},
+  series = {MMSys '15},
+  doi = {10.1145/2713168.2713193},
+  keywords = {DASH; Dataset; Toolchain; Scalable Video Coding},
+  pdf = {https://www-itec.uni-klu.ac.at/bib/files/dash_svc_dataset_v1.05.pdf},
+  url = {http://concert.itec.aau.at/SVCDataset/}
+}
+```
+
+
 ## Download, Build and Test
 
 This section describes the scripts for downloading and testing. Create a directory, e.g., SVCDemo, switch to this 
